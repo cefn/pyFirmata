@@ -58,6 +58,28 @@ class InvalidPinDefError(Exception):
     
 class NoInputWarning(RuntimeWarning):
     pass
+
+try:
+	import android
+	class AndroidBluetoothUart():
+		def __init__(self, device_id=None):
+			self.droid = android.Android()
+			if device_id != None:
+				self.droid.bluetoothConnect('00001101-0000-1000-8000-00805F9B34FB', device_id)
+			else:
+				self.droid.bluetoothConnect('00001101-0000-1000-8000-00805F9B34FB')
+		def port(self):
+			return self.droid.bluetoothGetLocalName()
+		def inWaiting(self): # TODO CH this should perhaps return a number of bytes, not a true/false, though it will probably work
+			return self.droid.bluetoothReadReady()
+		def write(data):
+			self.droid.bluetoothWrite(data)
+		def read():
+			return self.droid.bluetoothRead() 
+		def close():
+			self.droid.bluetoothStop()
+except: ImportError
+	pass
     
 class Board(object):
     """
@@ -70,9 +92,15 @@ class Board(object):
     _command = None
     _stored_data = []
     _parsing_sysex = False
-    
+            
     def __init__(self, port, layout, baudrate=57600, name=None):
-        self.sp = serial.Serial(port, baudrate)
+		if type(port) is str:
+			self.sp = serial.Serial(port, baudrate)
+		elif type(sp) is serial.Serial or if 'AndroidBluetoothUart' in globals() && type(port) is AndroidBluetoothUart
+			self.sp = port
+		else
+			raise Error("Invalid type provided to populate port")
+			
         # Allow 5 secs for Arduino's auto-reset to happen
         # Alas, Firmata blinks it's version before printing it to serial
         # For 2.3, even 5 seconds might not be enough.
