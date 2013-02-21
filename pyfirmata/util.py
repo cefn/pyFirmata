@@ -40,6 +40,8 @@ class Iterator(threading.Thread):
                 while self.board.bytes_available():
                     self.board.iterate()
                 time.sleep(0.001)
+            except(KeyboardInterrupt, SystemExit), e:
+				break
             except (AttributeError, serial.SerialException, OSError), e:
                 # this way we can kill the thread by setting the board object
                 # to None, or when the serial port is closed by board.exit()
@@ -56,7 +58,7 @@ class Iterator(threading.Thread):
                 except (TypeError, IndexError):
                     pass
                 raise
-                
+        
 def to_two_bytes(integer):
     """
     Breaks an integer into two 7 bit bytes.
